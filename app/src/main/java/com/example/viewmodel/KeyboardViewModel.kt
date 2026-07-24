@@ -12,39 +12,39 @@ import java.io.File
 
 class KeyboardViewModel(private val repository: KeyboardRepository) : ViewModel() {
 
-    private val typedText = MutableStateFlow("")
-    val typedText: StateFlow<String> = typedText.asStateFlow()
+    private val _typedText = MutableStateFlow("")
+    val typedText: StateFlow<String> = _typedText.asStateFlow()
 
-    private val t9Sequence = MutableStateFlow("")
-    val t9Sequence: StateFlow<String> = t9Sequence.asStateFlow()
+    private val _t9Sequence = MutableStateFlow("")
+    val t9Sequence: StateFlow<String> = _t9Sequence.asStateFlow()
 
-    private val suggestions = MutableStateFlow<List<String>>(emptyList())
-    val suggestions: StateFlow<List<String>> = suggestions.asStateFlow()
+    private val _suggestions = MutableStateFlow<List<String>>(emptyList())
+    val suggestions: StateFlow<List<String>> = _suggestions.asStateFlow()
 
-    private val currentLanguage = MutableStateFlow("EN")
-    val currentLanguage: StateFlow<String> = currentLanguage.asStateFlow()
+    private val _currentLanguage = MutableStateFlow("EN")
+    val currentLanguage: StateFlow<String> = _currentLanguage.asStateFlow()
 
-    private val isPredictiveMode = MutableStateFlow(false)
-    val isPredictiveMode: StateFlow<Boolean> = isPredictiveMode.asStateFlow()
+    private val _isPredictiveMode = MutableStateFlow(false)
+    val isPredictiveMode: StateFlow<Boolean> = _isPredictiveMode.asStateFlow()
 
-    private val keyboardMode = MutableStateFlow(KeyboardMode.MULTI_TAP)
-    val keyboardMode: StateFlow<KeyboardMode> = keyboardMode.asStateFlow()
+    private val _keyboardMode = MutableStateFlow(KeyboardMode.MULTI_TAP)
+    val keyboardMode: StateFlow<KeyboardMode> = _keyboardMode.asStateFlow()
 
-    private val isSuggestionsEnabled = MutableStateFlow(true)
-    val isSuggestionsEnabled: StateFlow<Boolean> = isSuggestionsEnabled.asStateFlow()
+    private val _isSuggestionsEnabled = MutableStateFlow(true)
+    val isSuggestionsEnabled: StateFlow<Boolean> = _isSuggestionsEnabled.asStateFlow()
 
-    fun toggleSuggestionsEnabled() { isSuggestionsEnabled.value = !isSuggestionsEnabled.value; updateSuggestions() }
+    fun toggleSuggestionsEnabled() { _isSuggestionsEnabled.value = !_isSuggestionsEnabled.value; updateSuggestions() }
 
-    private val shiftState = MutableStateFlow(ShiftState.OFF)
-    val shiftState: StateFlow<ShiftState> = shiftState.asStateFlow()
-    val isShiftActive: StateFlow<Boolean> = shiftState.map { it != ShiftState.OFF }
+    private val _shiftState = MutableStateFlow(ShiftState.OFF)
+    val shiftState: StateFlow<ShiftState> = _shiftState.asStateFlow()
+    val isShiftActive: StateFlow<Boolean> = _shiftState.map { it != ShiftState.OFF }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     private val suggestedEmoji = MutableStateFlow<String?>(null)
     val suggestedEmoji: StateFlow<String?> = suggestedEmoji.asStateFlow()
 
-    private val activePreviewChar = MutableStateFlow<Char?>(null)
-    val activePreviewChar: StateFlow<Char?> = activePreviewChar.asStateFlow()
+    private val _activePreviewChar = MutableStateFlow<Char?>(null)
+    val activePreviewChar: StateFlow<Char?> = _activePreviewChar.asStateFlow()
 
     private val isHapticEnabled = MutableStateFlow(true)
     val isHapticEnabled: StateFlow<Boolean> = isHapticEnabled.asStateFlow()
@@ -71,7 +71,7 @@ class KeyboardViewModel(private val repository: KeyboardRepository) : ViewModel(
     fun dismissUndoBanner() { undoBannerJob?.cancel(); showUndoBanner.value = null }
 
     fun undoLastShortcutExpansion() {
-        lastShortcutSnapshot?.let { (previousText, _) -> typedText.value = previousText }
+        lastShortcutSnapshot?.let { (previousText, _) -> _typedText.value = previousText }
         dismissUndoBanner()
     }
 
@@ -103,8 +103,8 @@ class KeyboardViewModel(private val repository: KeyboardRepository) : ViewModel(
     val allThemes: StateFlow<List<CustomTheme>> = repository.allThemes
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    private val activeTheme = MutableStateFlow<CustomTheme?>(null)
-    val activeTheme: StateFlow<CustomTheme?> = activeTheme.asStateFlow()
+    private val _activeTheme = MutableStateFlow<CustomTheme?>(null)
+    val activeTheme: StateFlow<CustomTheme?> = _activeTheme.asStateFlow()
 
     val allShortcuts: StateFlow<List<TextShortcut>> = repository.allShortcuts
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -135,30 +135,30 @@ class KeyboardViewModel(private val repository: KeyboardRepository) : ViewModel(
     val keyboardHeightScale: StateFlow<String> = keyboardHeightScaleRaw.map { String.format("%.1fx", it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "1.0x")
 
-    private val selectedFontFamily = MutableStateFlow("Sans-Serif")
-    val selectedFontFamily: StateFlow<String> = selectedFontFamily.asStateFlow()
+    private val _selectedFontFamily = MutableStateFlow("Sans-Serif")
+    val selectedFontFamily: StateFlow<String> = _selectedFontFamily.asStateFlow()
 
     init {
         viewModelScope.launch {
             repository.checkAndPrepopulate()
             repository.allThemes.collect { themes ->
-                if (themes.isNotEmpty() && activeTheme.value == null) activeTheme.value = themes.first()
+                if (themes.isNotEmpty() && _activeTheme.value == null) _activeTheme.value = themes.first()
             }
         }
     }
 
-    fun setLanguage(lang: String) { commitCurrentBuffer(); currentLanguage.value = lang.uppercase(); updateSuggestions() }
-    fun toggleLanguage() { setLanguage(when (currentLanguage.value) { "EN" -> "AR"; else -> "EN" }) }
+    fun setLanguage(lang: String) { commitCurrentBuffer(); _currentLanguage.value = lang.uppercase(); updateSuggestions() }
+    fun toggleLanguage() { setLanguage(when (_currentLanguage.value) { "EN" -> "AR"; else -> "EN" }) }
 
     fun togglePredictiveMode() {
         commitCurrentBuffer()
-        if (keyboardMode.value == KeyboardMode.QWERTY) setKeyboardMode(KeyboardMode.MULTI_TAP) else setKeyboardMode(KeyboardMode.QWERTY)
+        if (_keyboardMode.value == KeyboardMode.QWERTY) setKeyboardMode(KeyboardMode.MULTI_TAP) else setKeyboardMode(KeyboardMode.QWERTY)
     }
 
     fun setKeyboardMode(mode: KeyboardMode) {
         commitCurrentBuffer()
-        keyboardMode.value = mode
-        isPredictiveMode.value = mode == KeyboardMode.T9_PREDICTIVE
+        _keyboardMode.value = mode
+        _isPredictiveMode.value = mode == KeyboardMode.T9_PREDICTIVE
         updateSuggestions()
     }
 
@@ -189,9 +189,9 @@ class KeyboardViewModel(private val repository: KeyboardRepository) : ViewModel(
     fun toggleShift() {
         val currentTime = System.currentTimeMillis()
         if (currentTime - lastShiftPressTime < DOUBLE_CLICK_TIMEOUT) {
-            shiftState.value = ShiftState.CAPS_LOCK
+            _shiftState.value = ShiftState.CAPS_LOCK
         } else {
-            shiftState.value = when (shiftState.value) {
+            _shiftState.value = when (_shiftState.value) {
                 ShiftState.OFF -> ShiftState.ONCE
                 ShiftState.ONCE -> ShiftState.OFF
                 ShiftState.CAPS_LOCK -> ShiftState.OFF
@@ -201,23 +201,23 @@ class KeyboardViewModel(private val repository: KeyboardRepository) : ViewModel(
     }
 
     fun updateKeyboardHeight(scale: Float) { keyboardHeightScaleRaw.value = scale }
-    fun updateFontFamily(font: String) { selectedFontFamily.value = font }
+    fun updateFontFamily(font: String) { _selectedFontFamily.value = font }
 
     var inputDelegate: InputDelegate? = null
 
     fun appendTypedTextDirectly(text: String) {
-        typedText.value = typedText.value + text
+        _typedText.value = _typedText.value + text
         inputDelegate?.commitText(text)
-        if (shiftState.value == ShiftState.ONCE && text.any { it.isLetter() }) shiftState.value = ShiftState.OFF
+        if (_shiftState.value == ShiftState.ONCE && text.any { it.isLetter() }) _shiftState.value = ShiftState.OFF
     }
 
     fun onKeyPress(key: Char) {
         val currentTime = System.currentTimeMillis()
-        val currentLang = currentLanguage.value
+        val currentLang = _currentLanguage.value
 
         if (key in '1'..'9') {
-            if (isPredictiveMode.value) {
-                t9Sequence.value = t9Sequence.value + key
+            if (_isPredictiveMode.value) {
+                _t9Sequence.value = _t9Sequence.value + key
                 updateSuggestions()
             } else {
                 val charList = T9Engine.getKeyMap(currentLang)[key] ?: emptyList()
@@ -225,28 +225,28 @@ class KeyboardViewModel(private val repository: KeyboardRepository) : ViewModel(
                     multiTapCommitJob?.cancel()
                     if (lastKeyPressed == key) {
                         multiTapIndex = (multiTapIndex + 1) % charList.size
-                        val currentText = typedText.value
+                        val currentText = _typedText.value
                         if (currentText.isNotEmpty()) {
                             val newChar = maybeCapitalize(charList[multiTapIndex])
-                            typedText.value = currentText.dropLast(1) + newChar
+                            _typedText.value = currentText.dropLast(1) + newChar
                             inputDelegate?.deleteSurroundingText(1, 0)
                             inputDelegate?.commitText(newChar.toString())
-                            activePreviewChar.value = newChar
+                            _activePreviewChar.value = newChar
                         }
                     } else {
-                        if (lastKeyPressed != null && shiftState.value == ShiftState.ONCE) shiftState.value = ShiftState.OFF
+                        if (lastKeyPressed != null && _shiftState.value == ShiftState.ONCE) _shiftState.value = ShiftState.OFF
                         multiTapIndex = 0
                         val newChar = maybeCapitalize(charList[0])
-                        typedText.value = typedText.value + newChar
+                        _typedText.value = _typedText.value + newChar
                         inputDelegate?.commitText(newChar.toString())
-                        activePreviewChar.value = newChar
+                        _activePreviewChar.value = newChar
                     }
                     lastKeyPressed = key
                     lastPressTime = currentTime
                     updateSuggestions()
                     multiTapCommitJob = viewModelScope.launch {
                         kotlinx.coroutines.delay(MULTI_TAP_TIMEOUT)
-                        lastKeyPressed = null; multiTapIndex = 0; activePreviewChar.value = null
+                        lastKeyPressed = null; multiTapIndex = 0; _activePreviewChar.value = null
                     }
                 }
             }
@@ -256,40 +256,40 @@ class KeyboardViewModel(private val repository: KeyboardRepository) : ViewModel(
             handleBackspace()
         } else if (key == '\n') {
             commitCurrentBuffer()
-            typedText.value = typedText.value + "\n"
+            _typedText.value = _typedText.value + "\n"
             inputDelegate?.commitText("\n")
         }
     }
 
     fun deleteLastWord() {
-        val text = typedText.value
+        val text = _typedText.value
         if (text.isBlank()) return
         val trimmed = text.trimEnd()
         val lastSpaceIndex = trimmed.lastIndexOf(' ')
         val deleteCount = text.length - (if (lastSpaceIndex >= 0) lastSpaceIndex + 1 else 0)
-        typedText.value = if (lastSpaceIndex >= 0) trimmed.substring(0, lastSpaceIndex + 1) else ""
+        _typedText.value = if (lastSpaceIndex >= 0) trimmed.substring(0, lastSpaceIndex + 1) else ""
         inputDelegate?.deleteSurroundingText(deleteCount, 0)
         lastKeyPressed = null
         updateSuggestions()
     }
 
     private fun maybeCapitalize(char: Char): Char {
-        val isUpper = shiftState.value != ShiftState.OFF
+        val isUpper = _shiftState.value != ShiftState.OFF
         return if (isUpper) char.uppercaseChar() else char
     }
 
     private fun handleSpaceKeyPress() {
         var topSuggestionCommitted = ""
-        if (isPredictiveMode.value && t9Sequence.value.isNotEmpty()) {
-            val topSuggestion = suggestions.value.firstOrNull() ?: t9Sequence.value
-            typedText.value = typedText.value + topSuggestion
+        if (_isPredictiveMode.value && _t9Sequence.value.isNotEmpty()) {
+            val topSuggestion = _suggestions.value.firstOrNull() ?: _t9Sequence.value
+            _typedText.value = _typedText.value + topSuggestion
             topSuggestionCommitted = topSuggestion
-            t9Sequence.value = ""; suggestions.value = emptyList()
-            if (shiftState.value == ShiftState.ONCE) shiftState.value = ShiftState.OFF
+            _t9Sequence.value = ""; _suggestions.value = emptyList()
+            if (_shiftState.value == ShiftState.ONCE) _shiftState.value = ShiftState.OFF
             inputDelegate?.commitText(topSuggestion)
         }
 
-        val textBeforeSpace = typedText.value
+        val textBeforeSpace = _typedText.value
         val words = textBeforeSpace.split(" ")
         val lastWord = words.lastOrNull() ?: ""
         val cleanWord = lastWord.lowercase().filter { it.isLetter() }
@@ -298,7 +298,7 @@ class KeyboardViewModel(private val repository: KeyboardRepository) : ViewModel(
         if (shortcut != null) {
             val newText = textBeforeSpace.substring(0, textBeforeSpace.length - lastWord.length) + shortcut.expandedText
             lastShortcutSnapshot = textBeforeSpace to shortcut.expandedText
-            typedText.value = newText
+            _typedText.value = newText
             val deleteLen = if (topSuggestionCommitted.isNotEmpty()) topSuggestionCommitted.length else lastWord.length
             inputDelegate?.deleteSurroundingText(deleteLen, 0)
             inputDelegate?.commitText(shortcut.expandedText)
@@ -309,18 +309,18 @@ class KeyboardViewModel(private val repository: KeyboardRepository) : ViewModel(
         }
 
         suggestedEmoji.value = T9Engine.getSuggestedEmoji(cleanWord)
-        typedText.value = typedText.value + " "
+        _typedText.value = _typedText.value + " "
         inputDelegate?.commitText(" ")
         logWordTyped(words.size)
     }
 
     private fun handleBackspace() {
-        if (isPredictiveMode.value && t9Sequence.value.isNotEmpty()) {
-            t9Sequence.value = t9Sequence.value.dropLast(1)
+        if (_isPredictiveMode.value && _t9Sequence.value.isNotEmpty()) {
+            _t9Sequence.value = _t9Sequence.value.dropLast(1)
             updateSuggestions()
         } else {
-            val text = typedText.value
-            if (text.isNotEmpty()) typedText.value = text.dropLast(1)
+            val text = _typedText.value
+            if (text.isNotEmpty()) _typedText.value = text.dropLast(1)
             lastKeyPressed = null
             updateSuggestions()
             inputDelegate?.deleteSurroundingText(1, 0)
@@ -329,73 +329,73 @@ class KeyboardViewModel(private val repository: KeyboardRepository) : ViewModel(
     }
 
     fun selectSuggestion(word: String) {
-        if (keyboardMode.value == KeyboardMode.T9_PREDICTIVE) {
-            if (t9Sequence.value.isNotEmpty()) {
-                typedText.value = typedText.value + word
-                t9Sequence.value = ""; suggestions.value = emptyList()
+        if (_keyboardMode.value == KeyboardMode.T9_PREDICTIVE) {
+            if (_t9Sequence.value.isNotEmpty()) {
+                _typedText.value = _typedText.value + word
+                _t9Sequence.value = ""; _suggestions.value = emptyList()
                 logWordTyped(1)
-                if (shiftState.value == ShiftState.ONCE) shiftState.value = ShiftState.OFF
+                if (_shiftState.value == ShiftState.ONCE) _shiftState.value = ShiftState.OFF
                 inputDelegate?.commitText(word)
             }
         } else {
-            val text = typedText.value
+            val text = _typedText.value
             val lastWord = text.split(" ").lastOrNull() ?: ""
             if (lastWord.isNotEmpty()) {
                 val baseText = text.substring(0, text.length - lastWord.length)
-                typedText.value = baseText + word
-                suggestions.value = emptyList()
+                _typedText.value = baseText + word
+                _suggestions.value = emptyList()
                 lastKeyPressed = null; multiTapIndex = 0
                 logWordTyped(1)
-                if (shiftState.value == ShiftState.ONCE) shiftState.value = ShiftState.OFF
+                if (_shiftState.value == ShiftState.ONCE) _shiftState.value = ShiftState.OFF
                 inputDelegate?.deleteSurroundingText(lastWord.length, 0)
                 inputDelegate?.commitText(word)
             }
         }
     }
 
-    fun clearBuffer() { t9Sequence.value = ""; suggestions.value = emptyList(); lastKeyPressed = null }
-    fun clearAllText() { typedText.value = ""; clearBuffer() }
+    fun clearBuffer() { _t9Sequence.value = ""; _suggestions.value = emptyList(); lastKeyPressed = null }
+    fun clearAllText() { _typedText.value = ""; clearBuffer() }
 
     fun addCustomWord(word: String) {
         if (word.isBlank()) return
-        T9Engine.addCustomWord(word, currentLanguage.value)
+        T9Engine.addCustomWord(word, _currentLanguage.value)
         updateSuggestions()
     }
 
     private fun commitCurrentBuffer() {
-        if (isPredictiveMode.value && t9Sequence.value.isNotEmpty()) {
-            val topSuggestion = suggestions.value.firstOrNull() ?: t9Sequence.value
-            typedText.value = typedText.value + topSuggestion
-            t9Sequence.value = ""; suggestions.value = emptyList()
-            if (shiftState.value == ShiftState.ONCE) shiftState.value = ShiftState.OFF
+        if (_isPredictiveMode.value && _t9Sequence.value.isNotEmpty()) {
+            val topSuggestion = _suggestions.value.firstOrNull() ?: _t9Sequence.value
+            _typedText.value = _typedText.value + topSuggestion
+            _t9Sequence.value = ""; _suggestions.value = emptyList()
+            if (_shiftState.value == ShiftState.ONCE) _shiftState.value = ShiftState.OFF
             inputDelegate?.commitText(topSuggestion)
         }
         lastKeyPressed = null
     }
 
     private fun updateSuggestions() {
-        if (!isSuggestionsEnabled.value) { suggestions.value = emptyList(); return }
-        val currentLang = currentLanguage.value
-        if (keyboardMode.value == KeyboardMode.T9_PREDICTIVE) {
-            val sequence = t9Sequence.value
-            suggestions.value = if (sequence.isNotEmpty()) formatSuggestions(T9Engine.getPredictions(sequence, currentLang)) else emptyList()
+        if (!_isSuggestionsEnabled.value) { _suggestions.value = emptyList(); return }
+        val currentLang = _currentLanguage.value
+        if (_keyboardMode.value == KeyboardMode.T9_PREDICTIVE) {
+            val sequence = _t9Sequence.value
+            _suggestions.value = if (sequence.isNotEmpty()) formatSuggestions(T9Engine.getPredictions(sequence, currentLang)) else emptyList()
         } else {
-            val text = typedText.value
+            val text = _typedText.value
             if (text.isNotEmpty() && !text.endsWith(" ")) {
                 val lastWord = text.split(" ").lastOrNull() ?: ""
                 if (lastWord.isNotEmpty()) {
                     val dictionary = T9Engine.getDictionary(currentLang)
                     val matches = dictionary.filter { it.startsWith(lastWord, ignoreCase = true) && it.length > lastWord.length }
-                    suggestions.value = formatSuggestions(matches)
-                } else suggestions.value = emptyList()
-            } else suggestions.value = emptyList()
+                    _suggestions.value = formatSuggestions(matches)
+                } else _suggestions.value = emptyList()
+            } else _suggestions.value = emptyList()
         }
     }
 
     private fun formatSuggestions(rawPredictions: List<String>): List<String> {
-        return if (shiftState.value != ShiftState.OFF) {
+        return if (_shiftState.value != ShiftState.OFF) {
             rawPredictions.map { word ->
-                if (shiftState.value == ShiftState.CAPS_LOCK) word.uppercase()
+                if (_shiftState.value == ShiftState.CAPS_LOCK) word.uppercase()
                 else word.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
             }
         } else rawPredictions
@@ -429,13 +429,13 @@ class KeyboardViewModel(private val repository: KeyboardRepository) : ViewModel(
         return days[calendar.get(java.util.Calendar.DAY_OF_WEEK) - 1]
     }
 
-    fun setActiveTheme(theme: CustomTheme) { activeTheme.value = theme }
+    fun setActiveTheme(theme: CustomTheme) { _activeTheme.value = theme }
 
     fun addCustomTheme(name: String, bgColor: String, keyBg: String, keyText: String, accent: String, corners: Int) {
         viewModelScope.launch {
-            val newTheme = CustomTheme(name = name, bgColor = bgColor, keyBgColor = keyBg, keyTextColor = keyText, accentColor = accent, borderRadius = corners, fontFamily = selectedFontFamily.value, isSystem = false)
+            val newTheme = CustomTheme(name = name, bgColor = bgColor, keyBgColor = keyBg, keyTextColor = keyText, accentColor = accent, borderRadius = corners, fontFamily = _selectedFontFamily.value, isSystem = false)
             repository.insertTheme(newTheme)
-            activeTheme.value = newTheme
+            _activeTheme.value = newTheme
         }
     }
 
@@ -444,7 +444,7 @@ class KeyboardViewModel(private val repository: KeyboardRepository) : ViewModel(
             if (!theme.isSystem) {
                 repository.deleteTheme(theme)
                 val themes = repository.allThemes.first()
-                if (activeTheme.value == theme) activeTheme.value = themes.firstOrNull { it != theme } ?: themes.firstOrNull()
+                if (_activeTheme.value == theme) _activeTheme.value = themes.firstOrNull { it != theme } ?: themes.firstOrNull()
             }
         }
     }
@@ -491,9 +491,9 @@ class KeyboardViewModel(private val repository: KeyboardRepository) : ViewModel(
         viewModelScope.launch {
             try {
                 val json = org.json.JSONObject().apply {
-                    put("language", currentLanguage.value)
-                    put("font", selectedFontFamily.value)
-                    put("activeThemeName", activeTheme.value?.name ?: "")
+                    put("language", _currentLanguage.value)
+                    put("font", _selectedFontFamily.value)
+                    put("activeThemeName", _activeTheme.value?.name ?: "")
                     put("hapticEnabled", isHapticEnabled.value)
                     put("oneHandedMode", oneHandedMode.value.name)
                     put("timestamp", System.currentTimeMillis())
