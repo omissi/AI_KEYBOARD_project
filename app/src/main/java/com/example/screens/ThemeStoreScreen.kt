@@ -121,7 +121,7 @@ fun ThemeStoreScreen(viewModel: KeyboardViewModel) {
                                 Box(
                                     modifier = Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(theme.borderRadius.dp / 3)).background(themeAccent),
                                     contentAlignment = Alignment.Center
-                                ) { Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = Color.White, modifier = Modifier.size(10.dp)) }
+                                ) { Icon(Icons.Filled.ArrowForward, contentDescription = null, tint = Color.White, modifier = Modifier.size(10.dp)) }
                             }
                             Spacer(modifier = Modifier.height(8.dp))
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -172,7 +172,7 @@ fun ThemeStoreScreen(viewModel: KeyboardViewModel) {
                                 Box(
                                     modifier = Modifier.weight(1f).fillMaxHeight().clip(RoundedCornerShape(selectedCorners.dp)).background(Color(android.graphics.Color.parseColor(selectedAccentColor))),
                                     contentAlignment = Alignment.Center
-                                ) { Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp)) }
+                                ) { Icon(Icons.Filled.ArrowForward, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp)) }
                             }
                             Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.height(34.dp)) {
                                 Box(

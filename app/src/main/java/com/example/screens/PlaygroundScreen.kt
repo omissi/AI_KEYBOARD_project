@@ -128,7 +128,7 @@ fun NumericKeypad(viewModel: KeyboardViewModel, fontFamily: FontFamily) {
                     .background(MaterialTheme.colorScheme.errorContainer)
                     .clickable { viewModel.onKeyPress('\b') },
                 contentAlignment = Alignment.Center
-            ) { Icon(Icons.AutoMirrored.Filled.Backspace, contentDescription = null) }
+            ) { Icon(Icons.Filled.Backspace, contentDescription = null) }
 
             Box(
                 modifier = Modifier.weight(2f).height(52.dp).clip(RoundedCornerShape(12.dp))
@@ -142,7 +142,7 @@ fun NumericKeypad(viewModel: KeyboardViewModel, fontFamily: FontFamily) {
                     .background(MaterialTheme.colorScheme.primary)
                     .clickable { viewModel.onKeyPress('\n') },
                 contentAlignment = Alignment.Center
-            ) { Icon(Icons.AutoMirrored.Filled.KeyboardReturn, contentDescription = null, tint = Color.White) }
+            ) { Icon(Icons.Filled.KeyboardReturn, contentDescription = null, tint = Color.White) }
         }
     }
 }

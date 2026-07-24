@@ -115,7 +115,7 @@ fun KeyboardView(viewModel: KeyboardViewModel) {
             KeyButton(label = "0", modifier = Modifier.weight(1f), keyBgColor = keyBgColor, keyTextColor = keyTextColor) {
                 viewModel.onKeyPress('0')
             }
-            KeyButton(icon = Icons.AutoMirrored.Filled.Backspace, modifier = Modifier.weight(1f), keyBgColor = keyBgColor, keyTextColor = keyTextColor) {
+            KeyButton(icon = Icons.Filled.Backspace, modifier = Modifier.weight(1f), keyBgColor = keyBgColor, keyTextColor = keyTextColor) {
                 viewModel.onKeyPress('\b')
             }
         }
@@ -129,7 +129,7 @@ fun KeyboardView(viewModel: KeyboardViewModel) {
             KeyButton(label = "مسافة", modifier = Modifier.weight(2.5f), keyBgColor = keyBgColor, keyTextColor = keyTextColor) {
                 viewModel.onKeyPress(' ')
             }
-            KeyButton(icon = Icons.AutoMirrored.Filled.KeyboardReturn, modifier = Modifier.weight(1f), keyBgColor = accentColor, keyTextColor = Color.White) {
+            KeyButton(icon = Icons.Filled.KeyboardReturn, modifier = Modifier.weight(1f), keyBgColor = accentColor, keyTextColor = Color.White) {
                 viewModel.onKeyPress('\n')
             }
         }

@@ -45,7 +45,7 @@ fun AnalyticsScreen(viewModel: KeyboardViewModel) {
                 }
             }
             item {
-                KpiCard(title = "مرات الحذف", value = totalBackspaces.toString(), icon = Icons.AutoMirrored.Filled.KeyboardBackspace, modifier = Modifier.fillMaxWidth())
+                KpiCard(title = "مرات الحذف", value = totalBackspaces.toString(), icon = Icons.Filled.KeyboardBackspace, modifier = Modifier.fillMaxWidth())
             }
         }
     }

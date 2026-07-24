@@ -40,54 +40,54 @@ class KeyboardViewModel(private val repository: KeyboardRepository) : ViewModel(
     val isShiftActive: StateFlow<Boolean> = _shiftState.map { it != ShiftState.OFF }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
-    private val suggestedEmoji = MutableStateFlow<String?>(null)
-    val suggestedEmoji: StateFlow<String?> = suggestedEmoji.asStateFlow()
+    private val _suggestedEmoji = MutableStateFlow<String?>(null)
+    val suggestedEmoji: StateFlow<String?> = _suggestedEmoji.asStateFlow()
 
     private val _activePreviewChar = MutableStateFlow<Char?>(null)
     val activePreviewChar: StateFlow<Char?> = _activePreviewChar.asStateFlow()
 
-    private val isHapticEnabled = MutableStateFlow(true)
-    val isHapticEnabled: StateFlow<Boolean> = isHapticEnabled.asStateFlow()
-    fun toggleHapticFeedback() { isHapticEnabled.value = !isHapticEnabled.value }
+    private val _isHapticEnabled = MutableStateFlow(true)
+    val isHapticEnabled: StateFlow<Boolean> = _isHapticEnabled.asStateFlow()
+    fun toggleHapticFeedback() { _isHapticEnabled.value = !_isHapticEnabled.value }
 
-    private val oneHandedMode = MutableStateFlow(OneHandedMode.OFF)
-    val oneHandedMode: StateFlow<OneHandedMode> = oneHandedMode.asStateFlow()
-    fun setOneHandedMode(mode: OneHandedMode) { oneHandedMode.value = mode }
+    private val _oneHandedMode = MutableStateFlow(OneHandedMode.OFF)
+    val oneHandedMode: StateFlow<OneHandedMode> = _oneHandedMode.asStateFlow()
+    fun setOneHandedMode(mode: OneHandedMode) { _oneHandedMode.value = mode }
 
-    private val clipboardHistory = MutableStateFlow<List<ClipboardEntry>>(emptyList())
-    val clipboardHistory: StateFlow<List<ClipboardEntry>> = clipboardHistory.asStateFlow()
+    private val _clipboardHistory = MutableStateFlow<List<ClipboardEntry>>(emptyList())
+    val clipboardHistory: StateFlow<List<ClipboardEntry>> = _clipboardHistory.asStateFlow()
 
     fun addClipboardEntry(text: String) {
         if (text.isBlank()) return
-        clipboardHistory.value = (listOf(ClipboardEntry(text)) + clipboardHistory.value.filter { it.text != text }).take(10)
+        _clipboardHistory.value = (listOf(ClipboardEntry(text)) + _clipboardHistory.value.filter { it.text != text }).take(10)
     }
-    fun clearClipboardHistory() { clipboardHistory.value = emptyList() }
+    fun clearClipboardHistory() { _clipboardHistory.value = emptyList() }
 
-    private val showUndoBanner = MutableStateFlow<String?>(null)
-    val showUndoBanner: StateFlow<String?> = showUndoBanner.asStateFlow()
+    private val _showUndoBanner = MutableStateFlow<String?>(null)
+    val showUndoBanner: StateFlow<String?> = _showUndoBanner.asStateFlow()
     private var lastShortcutSnapshot: Pair<String, String>? = null
     private var undoBannerJob: kotlinx.coroutines.Job? = null
 
-    fun dismissUndoBanner() { undoBannerJob?.cancel(); showUndoBanner.value = null }
+    fun dismissUndoBanner() { undoBannerJob?.cancel(); _showUndoBanner.value = null }
 
     fun undoLastShortcutExpansion() {
         lastShortcutSnapshot?.let { (previousText, _) -> _typedText.value = previousText }
         dismissUndoBanner()
     }
 
-    private val translationResult = MutableStateFlow<TranslationResult?>(null)
-    val translationResult: StateFlow<TranslationResult?> = translationResult.asStateFlow()
-    fun clearTranslationResult() { translationResult.value = null }
+    private val _translationResult = MutableStateFlow<TranslationResult?>(null)
+    val translationResult: StateFlow<TranslationResult?> = _translationResult.asStateFlow()
+    fun clearTranslationResult() { _translationResult.value = null }
 
     fun translateWithAI(text: String, fromLang: String, toLang: String, apiKey: String = "") {
         if (text.isBlank()) return
-        translationResult.value = TranslationResult(originalText = text, isLoading = true)
+        _translationResult.value = TranslationResult(originalText = text, isLoading = true)
         viewModelScope.launch {
             when (val result = GeminiTranslationService.translate(text, fromLang, toLang, apiKey)) {
                 is GeminiTranslationService.ServiceResult.Success ->
-                    translationResult.value = TranslationResult(originalText = text, translatedText = result.translatedText)
+                    _translationResult.value = TranslationResult(originalText = text, translatedText = result.translatedText)
                 is GeminiTranslationService.ServiceResult.Error ->
-                    translationResult.value = TranslationResult(originalText = text, translatedText = result.message, isError = true)
+                    _translationResult.value = TranslationResult(originalText = text, translatedText = result.message, isError = true)
             }
         }
     }
@@ -304,11 +304,11 @@ class KeyboardViewModel(private val repository: KeyboardRepository) : ViewModel(
             inputDelegate?.commitText(shortcut.expandedText)
 
             undoBannerJob?.cancel()
-            showUndoBanner.value = "تم استبدال \"${shortcut.shortcut}\" بـ \"${shortcut.expandedText}\""
-            undoBannerJob = viewModelScope.launch { kotlinx.coroutines.delay(3000); showUndoBanner.value = null }
+            _showUndoBanner.value = "تم استبدال \"${shortcut.shortcut}\" بـ \"${shortcut.expandedText}\""
+            undoBannerJob = viewModelScope.launch { kotlinx.coroutines.delay(3000); _showUndoBanner.value = null }
         }
 
-        suggestedEmoji.value = T9Engine.getSuggestedEmoji(cleanWord)
+        _suggestedEmoji.value = T9Engine.getSuggestedEmoji(cleanWord)
         _typedText.value = _typedText.value + " "
         inputDelegate?.commitText(" ")
         logWordTyped(words.size)
@@ -494,8 +494,8 @@ class KeyboardViewModel(private val repository: KeyboardRepository) : ViewModel(
                     put("language", _currentLanguage.value)
                     put("font", _selectedFontFamily.value)
                     put("activeThemeName", _activeTheme.value?.name ?: "")
-                    put("hapticEnabled", isHapticEnabled.value)
-                    put("oneHandedMode", oneHandedMode.value.name)
+                    put("hapticEnabled", _isHapticEnabled.value)
+                    put("oneHandedMode", _oneHandedMode.value.name)
                     put("timestamp", System.currentTimeMillis())
                 }
                 val backupDir = File(context.filesDir, "backups")
